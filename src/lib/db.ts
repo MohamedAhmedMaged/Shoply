@@ -17,7 +17,6 @@ export async function connectDB() {
 
   if (!globalForMongoose.promise) {
     globalForMongoose.promise = mongoose.connect(uri, {
-      dbName: "ecommerce",
       maxPoolSize: 10,
       minPoolSize: 2,
       serverSelectionTimeoutMS: 5000,

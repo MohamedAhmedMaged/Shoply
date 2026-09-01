@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import ProductCard from "@/features/products/components/ProductCard";
 import HeroSlider from "@/components/HeroSlider";
 import CategoryCard from "@/components/CategoryCard";

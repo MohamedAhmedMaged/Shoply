@@ -22,7 +22,8 @@ const authOptions: AuthOptions = {
         }
 
         await connectDB();
-        const user = await User.findOne({ email: credentials.email });
+        const email = (credentials.email as string).toLowerCase().trim();
+        const user = await User.findOne({ email });
         if (!user) throw new Error("Invalid credentials");
         if (!user.password) throw new Error("Invalid credentials");
 
