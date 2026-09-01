@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import connectDB from "@/lib/db";
 import { User } from "@/models";
 
+
 const authOptions: AuthOptions = {
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   session: { strategy: "jwt" as const },

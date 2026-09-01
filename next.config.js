@@ -1,5 +1,20 @@
-/** @type {import('next').NextConfig} */
+const getNextAuthUrl = () => {
+  const url = (process.env.NEXTAUTH_URL || process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || '').trim();
+  if (url) {
+    return url.startsWith('http') ? url : `https://${url}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL.trim()}`;
+  }
+  return 'http://localhost:3000';
+};
+
 const nextConfig = {
+  env: {
+    NEXTAUTH_URL: getNextAuthUrl(),
+    AUTH_URL: getNextAuthUrl(),
+    NEXT_PUBLIC_APP_URL: getNextAuthUrl(),
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com' },
