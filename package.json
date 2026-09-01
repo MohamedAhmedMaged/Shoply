@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "tsx --test tests/**/*.test.ts",
+    "seed": "tsx scripts/seed-database.ts",
     "fix-images": "tsx scripts/fix-product-images.ts",
     "cleanup:guest-carts": "tsx scripts/cleanup-guest-carts.ts"
   },
