@@ -1,5 +1,5 @@
 import { getAuthUser } from '@/lib/auth';
-import { getWishlist, addToWishlist, removeFromWishlist } from '@/features/wishlist/services/wishlist.service';
+import { getWishlist, addToWishlist, removeFromWishlist, clearWishlist } from '@/features/wishlist/services/wishlist.service';
 import { successResponse, errorResponse, unauthorizedResponse } from '@/lib/utils';
 import { NextRequest } from 'next/server';
 
@@ -34,8 +34,11 @@ export async function DELETE(request: NextRequest) {
     if (!user) return unauthorizedResponse();
     const { searchParams } = new URL(request.url);
     const productId = searchParams.get('productId');
-    if (!productId) return errorResponse('Product ID required');
-    await removeFromWishlist(user.userId, productId);
+    if (productId) {
+      await removeFromWishlist(user.userId, productId);
+    } else {
+      await clearWishlist(user.userId);
+    }
     return successResponse({ success: true });
   } catch (error) {
     if (error instanceof Error) return errorResponse(error.message);

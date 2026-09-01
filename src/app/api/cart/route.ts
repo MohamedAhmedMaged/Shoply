@@ -93,13 +93,27 @@ export async function DELETE(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const cartItemId = searchParams.get("cartItemId");
-    if (!cartItemId) return errorResponse("Cart item ID required", 400);
+    const productId = searchParams.get("productId");
+    if (!cartItemId && !productId) return errorResponse("Cart item ID or product ID required", 400);
 
-    if (!(await ownsCartItem(cartItemId, user?.userId, guestId))) {
+    let targetItemId = cartItemId;
+    if (!targetItemId || !mongoose.isValidObjectId(targetItemId)) {
+      const resolvedProductId = productId || (cartItemId && cartItemId.includes("_") ? cartItemId.split("_")[1] : null);
+      if (resolvedProductId && mongoose.isValidObjectId(resolvedProductId)) {
+        await connectDB();
+        const cart = await Cart.findOne(user ? { userId: user.userId } : { guestId }).lean<any>();
+        if (cart) {
+          const found = await CartItem.findOne({ cartId: cart._id, productId: resolvedProductId }).lean<any>();
+          if (found) targetItemId = found._id.toString();
+        }
+      }
+    }
+
+    if (!targetItemId || !(await ownsCartItem(targetItemId, user?.userId, guestId))) {
       return forbiddenResponse();
     }
 
-    await removeCartItem(cartItemId);
+    await removeCartItem(targetItemId);
     const cart = await getOrCreateCart(user?.userId, guestId);
     return successResponse(cart);
   } catch (error) {

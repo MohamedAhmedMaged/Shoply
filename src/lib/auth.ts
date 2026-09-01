@@ -22,7 +22,6 @@ export async function getAuthUser(req?: NextRequest) {
     const token = await getToken({
       req,
       secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
-      secureCookie: process.env.NODE_ENV === "production",
     });
     if (token) {
       session = {
@@ -32,6 +31,8 @@ export async function getAuthUser(req?: NextRequest) {
           role: token.role as Role,
         },
       };
+    } else {
+      session = await getServerSession(authOptions);
     }
   } else {
     session = await getServerSession(authOptions);

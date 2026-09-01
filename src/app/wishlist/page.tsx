@@ -19,10 +19,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { apiFetch } from "@/lib/api";
-import {
-  clearWishlist as clearWishlistAction,
-  removeFromWishlist,
-} from "@/actions/wishlist.action";
+
 import { addToCart } from "@/actions/cart.action";
 import { useState, useEffect } from "react";
 
@@ -108,7 +105,14 @@ export default function WishlistPage() {
   }, [isAuthenticated, ids]);
 
   const removeMutation = useMutation({
-    mutationFn: removeFromWishlist,
+    mutationFn: async (productId: string) => {
+      const res = await fetch(`/api/wishlist?productId=${encodeURIComponent(productId)}`, {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Failed to remove item");
+      return json;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
       queryClient.invalidateQueries({ queryKey: ["wishlist-ids"] });
@@ -121,7 +125,14 @@ export default function WishlistPage() {
   });
 
   const clearMutation = useMutation({
-    mutationFn: clearWishlistAction,
+    mutationFn: async () => {
+      const res = await fetch("/api/wishlist", {
+        method: "DELETE",
+      });
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || "Failed to clear wishlist");
+      return json;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["wishlist"] });
       queryClient.invalidateQueries({ queryKey: ["wishlist-ids"] });

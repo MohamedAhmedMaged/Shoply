@@ -317,6 +317,25 @@ export const useCartStore = create<CartState>((set, get) => ({
       });
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
+
+      if (json.data?.items) {
+        const authItems = (json.data.items || []) as AuthCartItem[];
+        const syncedItems: NormalizedCartItem[] = authItems
+          .filter((item) => item.productId)
+          .map((item) => ({
+            id: item.id,
+            productId: item.productId!,
+            quantity: item.quantity,
+            variantId: item.variantId,
+            source: "auth" as const,
+          }));
+        const itemCount = syncedItems.reduce((sum, i) => sum + i.quantity, 0);
+        const total = syncedItems.reduce(
+          (sum, i) => sum + (i.productId?.price || 0) * i.quantity,
+          0,
+        );
+        set({ items: syncedItems, itemCount, total });
+      }
     } catch {
       // Rollback
       set({
@@ -348,7 +367,7 @@ export const useCartStore = create<CartState>((set, get) => ({
     }
 
     // Auth: optimistic
-    const optimisticItems = items.filter((i) => i.id !== itemId);
+    const optimisticItems = items.filter((i) => i.id !== itemId && (!productId || i.productId?.id !== productId));
     const optimisticCount = optimisticItems.reduce((sum, i) => sum + i.quantity, 0);
     const optimisticTotal = optimisticItems.reduce(
       (sum, i) => sum + (i.productId?.price || 0) * i.quantity,
@@ -357,7 +376,10 @@ export const useCartStore = create<CartState>((set, get) => ({
     set({ items: optimisticItems, itemCount: optimisticCount, total: optimisticTotal });
 
     try {
-      const res = await fetch(`/api/cart?cartItemId=${itemId}`, { method: "DELETE" });
+      const queryParams = new URLSearchParams();
+      if (itemId) queryParams.set("cartItemId", itemId);
+      if (productId) queryParams.set("productId", productId);
+      const res = await fetch(`/api/cart?${queryParams.toString()}`, { method: "DELETE" });
       const json = await res.json();
       if (!json.success) throw new Error(json.error);
     } catch {
