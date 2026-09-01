@@ -39,6 +39,24 @@ describe("Zod Validators", () => {
     });
   });
 
+  describe("loginSchema", () => {
+    it("accepts valid login credentials", () => {
+      const res = loginSchema.safeParse({
+        email: "user@example.com",
+        password: "password123",
+      });
+      assert.equal(res.success, true);
+    });
+
+    it("rejects invalid email format", () => {
+      const res = loginSchema.safeParse({
+        email: "not-an-email",
+        password: "password123",
+      });
+      assert.equal(res.success, false);
+    });
+  });
+
   describe("productSchema", () => {
     it("accepts valid product input", () => {
       const res = productSchema.safeParse({

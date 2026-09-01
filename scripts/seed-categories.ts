@@ -25,6 +25,7 @@ const categories = [
 ];
 
 async function seed() {
+  try {
     const dbUrl = process.env.DATABASE_URL || process.env.MONGODB_URI;
     if (!dbUrl) throw new Error("Please define DATABASE_URL or MONGODB_URI in .env");
     await mongoose.connect(dbUrl);
