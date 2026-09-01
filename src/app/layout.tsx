@@ -6,13 +6,21 @@ import { APP_URL } from "@/lib/config";
 
 const inter = Inter({ subsets: ["latin"] });
 
+function getMetadataBase(): URL {
+  try {
+    return new URL(APP_URL);
+  } catch {
+    return new URL("http://localhost:3000");
+  }
+}
+
 export const metadata: Metadata = {
   title: {
     default: "Shoply - Modern E-Commerce Platform",
     template: "%s | Shoply",
   },
   description: "Discover premium products with the best deals. Shop electronics, fashion, home essentials and more.",
-  metadataBase: new URL(APP_URL),
+  metadataBase: getMetadataBase(),
   openGraph: {
     type: "website",
     locale: "en_US",

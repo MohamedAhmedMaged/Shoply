@@ -1,4 +1,6 @@
 import Link from "next/link";
+import connectDB from "@/lib/db";
+import { Category as CategoryModel } from "@/models";
 import {
   Laptop,
   Shirt,
@@ -42,14 +44,13 @@ type Category = {
 export default async function CategoryCard() {
   let categories: Category[] = [];
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const res = await fetch(`${baseUrl}/api/categories`, {
-      cache: "no-store",
-    });
-    if (res.ok) {
-      const json = await res.json();
-      if (json.success) categories = json.data;
-    }
+    await connectDB();
+    const docs = await CategoryModel.find().select("_id name slug").lean<any[]>();
+    categories = docs.map((d: any) => ({
+      id: d._id.toString(),
+      name: d.name,
+      slug: d.slug,
+    }));
   } catch {
     categories = [];
   }

@@ -1,5 +1,20 @@
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'Shoply';
-export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+function resolveAppUrl(): string {
+  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (envUrl) {
+    if (envUrl.startsWith("http://") || envUrl.startsWith("https://")) {
+      return envUrl;
+    }
+    return `https://${envUrl}`;
+  }
+  const vercelUrl = process.env.VERCEL_URL?.trim();
+  if (vercelUrl) {
+    return `https://${vercelUrl}`;
+  }
+  return 'http://localhost:3000';
+}
+
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME?.trim() || 'Shoply';
+export const APP_URL = resolveAppUrl();
 
 export const PAGINATION = {
   DEFAULT_PAGE: 1,
